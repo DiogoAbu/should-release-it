@@ -56,17 +56,34 @@ jobs:
           git_commit_gpgsign: true
           git_tag_gpgsign: true
 
-      - name: Generate .npmrc with npm token
-        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - name: Check if should release
+        id: should-release
+        run: |
+          if yarn should-release-it; then
+            echo "True"
+            echo "value=true" >> $GITHUB_OUTPUT
+          else
+            echo "False"
+            echo "value=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add npm token
+        if: "steps.should-release.outputs.value == 'true'"
+        run: |
+          npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+          ls -la
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Determine version, generate notes, commit and publish tag
+        if: "steps.should-release.outputs.value == 'true'"
         run: |
           yarn should-release-it || exit 0
           if [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "Releasing on main"
             npm run release-it
           elif [[ "$BRANCH_NAME" == "beta" ]]; then
+            echo "Releasing on beta"
             npm run release-it -- --preRelease=beta
           fi
         env:
