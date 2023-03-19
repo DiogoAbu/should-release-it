@@ -59,11 +59,13 @@ jobs:
       - name: Check if should release
         id: should-release
         run: |
+          Green='\033[0;32m'
+          Red='\033[0;31m'
           if yarn should-release-it; then
-            echo "True"
+            echo -e "${Green}Should release-it returned true"
             echo "value=true" >> $GITHUB_OUTPUT
           else
-            echo "False"
+            echo -e "${Red}Should release-it returned false"
             echo "value=false" >> $GITHUB_OUTPUT
           fi
 
@@ -75,19 +77,16 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Determine version, generate notes, commit and publish tag
-        if: "steps.should-release.outputs.value == 'true'"
-        run: |
-          yarn should-release-it || exit 0
-          if [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "Releasing on main"
-            npm run release-it
-          elif [[ "$BRANCH_NAME" == "beta" ]]; then
-            echo "Releasing on beta"
-            npm run release-it -- --preRelease=beta
-          fi
+      - name: Release version on main
+        if: "steps.should-release.outputs.value == 'true' && github.ref_name == 'main'"
+        run: npm run release-it
         env:
-          BRANCH_NAME: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release version on beta
+        if: "steps.should-release.outputs.value == 'true' && github.ref_name == 'beta'"
+        run: npm run release-it -- --preRelease=beta
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Perform backmerge from main into beta
