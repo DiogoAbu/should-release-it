@@ -21,7 +21,7 @@
     "lint": "yarn eslint && yarn prettier",
     "lint-fix": "yarn eslint --fix && yarn prettier --write",
     "typecheck": "tsc --noEmit",
-    "release-it": "release-it --verbose --ci --npm.skipChecks",
+    "release-it": "release-it --ci --npm.skipChecks -VV",
     "prepack": "yarn build",
     "prepare": "husky install",
     "postinstall": "node scripts/run-postinstall.js"
