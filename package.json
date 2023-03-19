@@ -1,6 +1,6 @@
 {
   "name": "should-release-it",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Check if should release new version by looking at the commits using conventional commits",
   "repository": "https://github.com/DiogoAbu/should-release-it.git",
   "author": "Diogo de Azevedo Silva <diogodeazevedosilva@gmail.com>",
