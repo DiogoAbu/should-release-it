@@ -1,0 +1,78 @@
+name: Generate Release
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+
+jobs:
+  release:
+    name: Generate Release
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - name: Increase watchers to fix Docker
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - name: Install dependencies
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_on: error
+          command: yarn install --prefer-offline --frozen-lockfile --silent
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check types
+        run: yarn typecheck
+
+      - name: Import GPG key
+        id: import-gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+
+      - name: Generate .npmrc with npm token
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Determine version, generate notes, commit and publish tag
+        run: |
+          yarn should-release-it || exit 0
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            npm run release-it -- -VV -ci --npm.skipChecks
+          elif [[ "$BRANCH_NAME" == "beta" ]]; then
+            npm run release-it -- -VV -ci --npm.skipChecks --preRelease=beta
+          fi
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Perform backmerge from main into beta
+        if: "github.ref_name == 'main'"
+        run: |
+          git checkout -B main
+          git checkout -B beta
+          git rebase origin/main
+          [[ `git status -s -uno` ]] && git commit -m "chore(release): merge main into beta [skip ci]"
+          git push --no-verify origin HEAD:beta
