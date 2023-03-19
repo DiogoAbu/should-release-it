@@ -20,9 +20,10 @@
     "prettier": "prettier \"**/{*,}.{json,*rc}\" --config ./.prettierrc --check",
     "lint": "yarn eslint && yarn prettier",
     "lint-fix": "yarn eslint --fix && yarn prettier --write",
+    "release-it": "release-it",
+    "prepack": "yarn build",
     "prepare": "husky install",
-    "postinstall": "node scripts/run-postinstall.js",
-    "prepack": "yarn build"
+    "postinstall": "node scripts/run-postinstall.js"
   },
   "lint-staged": {
     "{*,}.ts{,x}": [
