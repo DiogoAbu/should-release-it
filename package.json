@@ -20,7 +20,8 @@
     "prettier": "prettier \"**/{*,}.{json,*rc}\" --config ./.prettierrc --check",
     "lint": "yarn eslint && yarn prettier",
     "lint-fix": "yarn eslint --fix && yarn prettier --write",
-    "release-it": "release-it",
+    "typecheck": "tsc --noEmit",
+    "release-it": "release-it --verbose --ci --npm.skipChecks",
     "prepack": "yarn build",
     "prepare": "husky install",
     "postinstall": "node scripts/run-postinstall.js"

@@ -1,5 +1,7 @@
 name: Generate Release
 
+run-name: Generate Release
+
 on:
   push:
     branches:
@@ -60,9 +62,9 @@ jobs:
         run: |
           yarn should-release-it || exit 0
           if [[ "$BRANCH_NAME" == "main" ]]; then
-            npm run release-it -- -VV --ci --npm.skipChecks
+            npm run release-it
           elif [[ "$BRANCH_NAME" == "beta" ]]; then
-            npm run release-it -- -VV --ci --npm.skipChecks --preRelease=beta
+            npm run release-it -- --preRelease=beta
           fi
         env:
           BRANCH_NAME: ${{ github.ref_name }}
