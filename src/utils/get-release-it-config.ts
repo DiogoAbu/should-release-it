@@ -24,10 +24,6 @@ export const getReleaseItConfig = ({ dir = process.cwd() }: { dir?: string }): R
   });
 
   const result = explorer.search(dir);
-  if (result && typeof result.config === 'string') {
-    throw new Error(`Invalid configuration file at ${result.filepath}`);
-  }
-
   return result && isPlainObject(result.config) ? result.config : undefined;
 };
 
