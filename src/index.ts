@@ -56,6 +56,7 @@ const init = async () => {
   // Test commit messages
   const shouldRelease = messages.some((m) => {
     const isRelease = isReleaseRegex.test(m);
+    logger.log(isRelease ? 'Should trigger a release:' : 'Should NOT trigger a release:', m);
     return isRelease;
   });
 
@@ -65,7 +66,7 @@ const init = async () => {
     return;
   }
 
-  logger.log('Found commits that require a release, we should release');
+  logger.log('Found at least one commit that require a release, we should release');
   process.exitCode = 0;
 };
 
