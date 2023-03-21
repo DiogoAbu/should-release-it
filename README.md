@@ -84,6 +84,7 @@ Use on CI:
 |-------------------|--------------------------------------------------------------------------------------------------|----------|
 | --current-version | Version to use when getting `git log`, if not provided will use the one on `package.json`.       | [string] |
 | --release-it-dir  | Directory to search for the `release-it` config file, defaults to the current working directory. | [string] |
+| --silent          | Mute logs.                                                                                       |          |
 
 ## 💬 Contributing
 

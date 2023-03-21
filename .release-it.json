@@ -1,6 +1,7 @@
 {
   "git": {
     "commitMessage": "chore(release): v${version} [skip ci]",
+    "requireCommits": true,
     "requireBranch": ["main", "beta"],
     "tagName": "v${version}",
     "tagArgs": ["-s"]

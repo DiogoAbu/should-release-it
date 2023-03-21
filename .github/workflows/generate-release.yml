@@ -59,21 +59,15 @@ jobs:
       - name: Check if should release
         id: should-release
         run: |
-          Green='\033[0;32m'
-          Red='\033[0;31m'
           if yarn should-release-it; then
-            echo -e "${Green}Should release-it returned true"
             echo "value=true" >> $GITHUB_OUTPUT
           else
-            echo -e "${Red}Should release-it returned false"
             echo "value=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Add npm token
         if: "steps.should-release.outputs.value == 'true'"
-        run: |
-          npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-          ls -la
+        run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 

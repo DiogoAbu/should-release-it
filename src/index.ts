@@ -10,6 +10,10 @@ import { logger } from './utils/logger';
 const init = async () => {
   const argv = minimist(process.argv.slice(2));
 
+  if (argv.silent) {
+    logger.disable();
+  }
+
   const currentVersion = (argv['current-version'] as string) || getPackageJson()?.version;
   if (!currentVersion) {
     logger.error('Could not find current version.');
@@ -27,7 +31,7 @@ const init = async () => {
   // Get commit messages
   const { stdout, stderr, error } = await execAsync(`git log v${currentVersion}..HEAD --pretty=format:%s`);
   if (!stdout || stderr || error) {
-    // Could not find any commit message, releasing it as is
+    logger.log(`Could not find any commit message between v${currentVersion} and HEAD, releasing it as is`);
     process.exitCode = 0;
     return;
   }
@@ -56,15 +60,16 @@ const init = async () => {
   });
 
   if (!shouldRelease) {
+    logger.log('No meaningful commits found, we should not release');
     process.exitCode = 1;
     return;
   }
 
+  logger.log('Found commits that require a release, we should release');
   process.exitCode = 0;
 };
 
 void init().catch((err) => {
-  logger.error(err);
-  // Failed to run, let the release happen
+  logger.error('Failed to run, let the release happen', err);
   process.exitCode = 0;
 });
