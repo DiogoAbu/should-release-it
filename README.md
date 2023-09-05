@@ -59,8 +59,6 @@ There's no need to install [should-release-it](https://github.com/DiogoAbu/shoul
 
 ## 📖 Usage
 
-To run any command the working tree on the source folders must be clean.
-
 ```sh
 npx should-release-it <options>
 ```
@@ -69,13 +67,40 @@ npx should-release-it <options>
 $ npx should-release-it && npm run release-it
 ```
 
+Output with no meaningful commits
+```sh
+$ npx should-release-it
+» [6:08:53 PM] [should-release-it] › ℹ  Should NOT trigger a release: ci: update workflow
+» [6:08:53 PM] [should-release-it] › ℹ  No meaningful commits found, we should not release
+```
+
+Output that should trigger release
+```sh
+$ npx should-release-it
+» [11:27:49 PM] [should-release-it] › ℹ  Should NOT trigger a release: ci: clean up workflow
+» [11:27:49 PM] [should-release-it] › ℹ  Should trigger a release: feat: update dashboard
+» [11:27:49 PM] [should-release-it] › ℹ  Found at least one commit that require a release, we should release
+```
+
 Use on CI:
 ```yml
-- run: |
+- name: Check if should release
+  run: |
     npx should-release-it || exit 0
     npm run release
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# OR
+
+- name: Check if should release
+  id: should-release
+  run: |
+    if npx should-release-it; then
+      echo "value=true" >> $GITHUB_OUTPUT
+    else
+      echo "value=false" >> $GITHUB_OUTPUT
+    fi
 ```
 
 ### Options
