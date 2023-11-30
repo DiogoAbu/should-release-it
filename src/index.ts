@@ -3,6 +3,7 @@
 import minimist from 'minimist';
 
 import { execAsync } from './utils/exec-async';
+import { getConventionConfigTypes } from './utils/get-conventional-config-types';
 import { getPackageJson } from './utils/get-package.json';
 import { getReleaseItConfig } from './utils/get-release-it-config';
 import { logger } from './utils/logger';
@@ -38,17 +39,21 @@ const init = async () => {
 
   const messages = stdout.split('\n');
 
+  const types = getConventionConfigTypes(releaseItConfig);
+  if (!types) {
+    logger.error('Could not parse preset types and did not find any custom types.');
+    process.exitCode = 1;
+    return;
+  }
+
   // Parse release-it config file and get types that are not hidden
-  const typesThatShouldRelease = releaseItConfig.plugins['@release-it/conventional-changelog'].types.reduce(
-    (str, type) => {
-      if (!type.hidden) {
-        const separator = str.length ? '|' : '';
-        str += `${separator}${type.type}`;
-      }
-      return str;
-    },
-    '',
-  );
+  const typesThatShouldRelease = types.reduce((str, type) => {
+    if (!type.hidden) {
+      const separator = str.length ? '|' : '';
+      str += `${separator}${type.type}`;
+    }
+    return str;
+  }, '');
 
   // Build regex with types that should trigger a release
   const isReleaseRegex = new RegExp(`^(${typesThatShouldRelease})`);
