@@ -19,7 +19,6 @@
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
-    "suppressImplicitAnyIndexErrors": true,
     "target": "ES2015"
   },
   "exclude": ["node_modules"],
