@@ -1,6 +1,6 @@
-name: Generate Release
+name: Release and Publish
 
-run-name: Generate Release
+run-name: Release and Publish
 
 on:
   push:
@@ -8,86 +8,20 @@ on:
       - main
       - beta
 
-permissions:
-  contents: write
-
 jobs:
   release:
-    name: Generate Release
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
-
-    steps:
-      - name: Increase watchers to fix Docker
-        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-
-      - name: Checkout the repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: package.json
-          cache: yarn
-
-      - name: Install dependencies
-        uses: nick-invision/retry@v2
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          retry_on: error
-          command: yarn install --prefer-offline --frozen-lockfile --silent
-
-      - name: Lint
-        run: yarn lint
-
-      - name: Check types
-        run: yarn typecheck
-
-      - name: Import GPG key
-        id: import-gpg
-        uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-          git_tag_gpgsign: true
-
-      - name: Check if should release
-        id: should-release
-        run: |
-          if yarn should-release-it; then
-            echo "value=true" >> $GITHUB_OUTPUT
-          else
-            echo "value=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Add npm token
-        if: "steps.should-release.outputs.value == 'true'"
-        run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Release version on main
-        if: "steps.should-release.outputs.value == 'true' && github.ref_name == 'main'"
-        run: npm run release-it
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Release version on beta
-        if: "steps.should-release.outputs.value == 'true' && github.ref_name == 'beta'"
-        run: npm run release-it -- --preRelease=beta
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Perform backmerge from main into beta
-        if: "github.ref_name == 'main'"
-        run: |
-          git checkout -B main
-          git checkout -B beta
-          git rebase origin/main
-          [[ `git status -s -uno` ]] && git commit -m "chore(release): merge main into beta [skip ci]"
-          git push --no-verify origin HEAD:beta
+    name: Release
+    uses: DiogoAbu/workflows/.github/workflows/reusable_release.yml@main
+    permissions:
+      contents: write
+    with:
+      should_release_command: 'yarn should-release-it'
+      after_install_command: |
+        yarn lint
+        yarn typecheck
+    secrets:
+      gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+      gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      npm_token: ${{ secrets.NPM_TOKEN }}
+      release_token: ${{ secrets.RELEASE_TOKEN }}
+      checkout_token: ${{ secrets.RELEASE_TOKEN }}
