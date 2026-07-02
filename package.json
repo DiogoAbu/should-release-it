@@ -21,7 +21,6 @@
     "lint": "yarn eslint && yarn prettier",
     "lint-fix": "yarn eslint --fix && yarn prettier --write",
     "typecheck": "tsc --noEmit",
-    "release-it": "release-it --ci --npm.skipChecks -VV",
     "prepack": "yarn build",
     "prepare": "husky install",
     "postinstall": "node scripts/run-postinstall.js"
@@ -83,6 +82,7 @@
     "conventionalcommits"
   ],
   "volta": {
-    "node": "18.14.2"
+    "node": "18.14.2",
+    "yarn": "1.22.22"
   }
 }

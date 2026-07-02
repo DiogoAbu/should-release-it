@@ -48,10 +48,15 @@ const init = async () => {
 
   // Parse release-it config file and get types that are not hidden
   const typesThatShouldRelease = types.reduce((str, type) => {
-    if (!type.hidden) {
-      const separator = str.length ? '|' : '';
-      str += `${separator}${type.type}`;
+    if (type.hidden) {
+      return str;
     }
+    if (type.effect === 'hidden') {
+      return str;
+    }
+
+    const separator = str.length ? '|' : '';
+    str += `${separator}${type.type}`;
     return str;
   }, '');
 

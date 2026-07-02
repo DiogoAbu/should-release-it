@@ -42,4 +42,5 @@ export interface ReleaseItConventionalPluginType {
   type: string;
   section: string;
   hidden?: boolean;
+  effect?: 'bump' | 'hidden';
 }

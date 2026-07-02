@@ -41,13 +41,13 @@ It looks for the `@release-it/conventional-changelog` plugin and get the types d
       { "type": "fix", "section": "Bug Fixes" },
       { "type": "perf", "section": "Performance Improvements" },
       { "type": "revert", "section": "Reverts" },
-      { "type": "docs", "section": "Documentation", "hidden": true },
-      { "type": "style", "section": "Styles", "hidden": true },
-      { "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
-      { "type": "refactor", "section": "Code Refactoring", "hidden": true },
-      { "type": "test", "section": "Tests", "hidden": true },
-      { "type": "build", "section": "Build System", "hidden": true },
-      { "type": "ci", "section": "Continuous Integration", "hidden": true }
+      { "type": "docs", "section": "Documentation", "effect": "hidden" },
+      { "type": "style", "section": "Styles", "effect": "hidden" },
+      { "type": "chore", "section": "Miscellaneous Chores", "effect": "hidden" },
+      { "type": "refactor", "section": "Code Refactoring", "effect": "hidden" },
+      { "type": "test", "section": "Tests", "effect": "hidden" },
+      { "type": "build", "section": "Build System", "effect": "hidden" },
+      { "type": "ci", "section": "Continuous Integration", "effect": "hidden" }
     ]
   }
 }
